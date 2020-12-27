@@ -1,0 +1,202 @@
+<!--
+ * @Description: 
+ * @Version: 2.0
+ * @Autor: 葛璐豪
+ * @Date: 2020-12-26 16:27:31
+ * @LastEditors: Seven
+ * @LastEditTime: 2020-12-26 16:47:19
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>葛璐豪图表展示</title>
+    <style>
+        body {
+            color: blue;
+            background:url("img/back.png")  no-repeat center center;
+            background-repeat: no-repeat;
+            background-size: 100%;
+            background-attachment:fixed;
+        }
+        .btn {
+            border-width: 0px; /* 边框宽度 */
+            border-radius: 3px; /* 边框半径 */
+            background: #1E90FF; /* 背景颜色 */
+            cursor: pointer; /* 鼠标移入按钮范围时出现手势 */
+            outline: none; /* 不显示轮廓线 */
+            font-family: Microsoft YaHei; /* 设置字体 */
+            color: white; /* 字体颜色 */
+            font-size: 17px; /* 字体大小 */
+        }
+        .btn:hover {
+            background: #5599FF;
+        }
+    </style>
+    <script type="text/javascript" src="js/echarts.js"></script>
+    <script type="text/javascript" src="js/vue-echarts@4.0.2.js"></script>
+    <script type="text/javascript" src="js/jquery.js"></script>
+</head>
+<body>
+<h2 style="text-align: center;color:black;">姓名：葛璐豪 学号：201741882228</h2>
+<h2 style="text-align: center;">数据采集柱状图数据可视化</h2>
+<div style="text-align: center; margin:10px auto;";>
+    <a href="/" rel="external nofollow" >
+        <button type="button" class="btn btn-primary ">点我返回动态列表展示</button>
+    </a>
+</div>
+
+<div id="led" style="display:inline-block;width: 600px;height:400px;"></div>
+<div id="beep" style="display:inline-block;width: 600px;height:400px;"></div>
+<div id="people" style="display:inline-block;width: 600px;height:400px;"></div>
+
+<script>
+    var ledChart = echarts.init(document.getElementById('led'));
+    var beepChart = echarts.init(document.getElementById('beep'));
+    var peopleChart = echarts.init(document.getElementById('people'));
+    function test() {
+        var data;
+        $.ajax({
+            url: '/baseData',
+            type: 'get',
+            dataType: 'json',
+            success: function (data) {
+                var led = [];
+                var beep = [];
+                var ispeople = [];
+                /**采集时间*/
+                var coltime = [];
+                console.log(data)
+                //最大显示30个数字
+                let cnt = data.length>30?30:data.length
+                for (let i = data.length - cnt; i < data.length; ++i) {
+                    led.push(data[i].led);
+                    beep.push(data[i].beep)
+                    ispeople.push(data[i].people)
+                    coltime.push(data[i].time)
+                }
+                option = {
+                    color:['#3398DB'],
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+                            type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                        }
+                    },
+                    title: {
+                        text: 'led数据展示',
+                        subtext: '数据采集时间 ' + writeCurrentDate(),
+                        left: 'center'
+                    },
+                    xAxis: {
+                        type: 'category',
+                        data: coltime,
+                        name: '序号'
+                    },
+                    yAxis: {
+                        type: 'value',
+                        name: '温度'
+                    },
+                    series: [{
+                        data: led,
+                        type: 'line',
+                        smooth: true
+                    }]
+                };
+                ledChart.setOption(option);
+
+                option = {
+                    color:['#ff5500'],
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+                            type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                        }
+                    },
+                    title: {
+                        text: 'beep数据展示',
+                        subtext: '数据采集时间 ' + writeCurrentDate(),
+                        left: 'center'
+                    },
+                    xAxis: {
+                        type: 'category',
+                        data: coltime,
+                        name: '序号'
+                    },
+                    yAxis: {
+                        type: 'value',
+                        name: 'beep'
+                    },
+                    series: [{
+                        data: beep,
+                        type: 'bar',
+                        smooth: true
+                    }]
+                };
+                beepChart.setOption(option);
+
+
+                option = {
+                    title: {
+                        text: '人体红外 1-有人 0-无人',
+                        subtext: '数据采集时间 ' + writeCurrentDate(),
+                        left: 'center'
+                    },
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+                            type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                        }
+                    },
+                    xAxis: {
+                        type: 'category',
+                        data: coltime,
+                        name: '序号'
+                    },
+                    yAxis: {
+                        type: 'value',
+                        name: '是否有人'
+                    },
+                    series: [{
+                        data: ispeople,
+                        type: 'line',
+                        smooth: true
+                    }]
+                };
+                peopleChart.setOption(option);
+            }
+        })
+    }
+    setInterval("test()",1000);
+
+
+
+
+    function writeCurrentDate() {
+        var now = new Date();
+        var year = now.getFullYear(); //得到年份
+        var month = now.getMonth();//得到月份
+        var date = now.getDate();//得到日期
+        var day = now.getDay();//得到周几
+        var hour = now.getHours();//得到小时
+        var minu = now.getMinutes();//得到分钟
+        var sec = now.getSeconds();//得到秒
+        var MS = now.getMilliseconds();//获取毫秒
+        var week;
+        month = month + 1;
+        if (month < 10) month = "0" + month;
+        if (date < 10) date = "0" + date;
+        if (hour < 10) hour = "0" + hour;
+        if (minu < 10) minu = "0" + minu;
+        if (sec < 10) sec = "0" + sec;
+        if (MS < 100) MS = "0" + MS;
+        var arr_week = new Array("星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六");
+        week = arr_week[day];
+        var time = "";
+        time = year + "年" + month + "月" + date + "日" + " " + hour + ":" + minu + ":" + sec + " " + week;
+        //当前日期赋值给当前日期输入框中（jQuery easyUI）
+        return time;
+    }
+</script>
+</body>
+</html>

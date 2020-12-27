@@ -1,0 +1,114 @@
+<!--
+ * @Description: 
+ * @Version: 2.0
+ * @Autor: 葛璐豪
+ * @Date: 2020-12-26 16:28:43
+ * @LastEditors: Seven
+ * @LastEditTime: 2020-12-26 16:47:00
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>葛璐豪列表展示</title>
+    <script type="text/javascript" src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/vue.js"></script>
+    <style>
+        #table>table {
+            border-collapse: collapse;
+            text-align: center;
+            margin: 20px auto;
+        }
+        #table>table th,#table>table td {
+            border: 1px solid #cad9ea;
+            color: #666;
+            height: 30px;
+        }
+        #table>table th {
+            background-color: #CCE8EB;
+            width: 200px;
+        }
+        #table>table tr:nth-child(odd)
+        {
+            background-color: #fff;
+        }
+        #table>table tr:nth-child(even)
+        {
+            background-color: #F5FAFA;
+        }
+        body {
+            background:url("/img/back.png")  no-repeat center center;
+            background-repeat: no-repeat;
+            background-size: 100%;
+            background-attachment:fixed;
+        }
+        .btn {
+            border-width: 0px; /* 边框宽度 */
+            border-radius: 3px; /* 边框半径 */
+            background: #1E90FF; /* 背景颜色 */
+            cursor: pointer; /* 鼠标移入按钮范围时出现手势 */
+            outline: none; /* 不显示轮廓线 */
+            font-family: Microsoft YaHei; /* 设置字体 */
+            color: white; /* 字体颜色 */
+            font-size: 17px; /* 字体大小 */
+        }
+        .btn:hover {
+            background: #5599FF;
+        }
+    </style>
+</head>
+<body>
+<h2 style="text-align: center;margin-top: 10px;color: black">姓名：葛璐豪 学号：201741882228</h2>
+<div style="text-align: center">
+    <a href="/chart" rel="external nofollow" >
+        <button type="button" class="btn btn-primary ">点击查看动态柱状图</button>
+    </a>
+</div>
+<div id="table">
+    <h2 style="text-align: center;margin-top: 20px;color: blue">
+        每秒刷新数据,显示最新的50个数据
+    </h2>
+    <table>
+        <tr>
+            <th>id</th>
+            <th>beep</th>
+            <th>led</th>
+            <th>是否有人</th>
+            <th>时间</th>
+        </tr>
+        <tr v-for="item in data" :key="item.id">
+            <td>{{item.id}}</td>
+            <td>{{item.led}}</td>
+            <td>{{item.beep}}</td>
+            <td>{{item.people}}</td>
+            <td>{{item.time}}</td>
+        </tr>
+    </table>
+</div>
+<script>
+    var table = new Vue({
+        el : "#table",
+        data: {
+            data: [],
+        },
+    })
+    //数据刷新
+    setInterval(function() {
+        $.ajax({
+            url: '/baseData',
+            type: 'get',
+            dataType: 'json',
+            success: function (response) {
+                let last_data = []
+                let cnt = 0
+                for(let i = response.length-1 ; i >=0&&cnt<50; --i) {
+                    last_data.push(response[i])
+                    cnt++
+                }
+                table.$data.data = last_data
+            }
+        })
+    },1000)
+</script>
+</body>
+</html>
